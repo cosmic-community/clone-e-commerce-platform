@@ -32,6 +32,23 @@ export interface Product extends CosmicObject {
   };
 }
 
+export interface Category extends CosmicObject {
+  type: 'categories';
+  metadata: {
+    name: string;
+    description?: string;
+    image?: {
+      url: string;
+      imgix_url: string;
+    };
+    parent_category?: Category;
+    target_audience?: {
+      key: string;
+      value: string;
+    };
+  };
+}
+
 export interface Athlete extends CosmicObject {
   type: 'athletes';
   metadata: {
