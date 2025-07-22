@@ -30,7 +30,7 @@ async function getWomenData(): Promise<{
 }
 
 export default async function WomenPage() {
-  const { products, categories } = await getMenData()
+  const { products, categories } = await getWomenData()
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,7 +63,7 @@ export default async function WomenPage() {
           <div className="mb-16">
             <h2 className="text-2xl font-bold text-gray-900 mb-8">Shop by Category</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {categories.map((category) => (
+              {categories.map((category: Category) => (
                 <CategoryCard key={category.id} category={category} />
               ))}
             </div>
@@ -75,7 +75,7 @@ export default async function WomenPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Featured Products</h2>
           {products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {products.map((product) => (
+              {products.map((product: Product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
