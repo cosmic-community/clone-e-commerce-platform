@@ -19,12 +19,22 @@ export default function ProductGallery({ product }: ProductGalleryProps) {
     )
   }
 
+  // Get the current image with proper undefined check
+  const currentImage = images[selectedImage]
+  if (!currentImage) {
+    return (
+      <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+        <span className="text-gray-400">Image not found</span>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
       {/* Main Image */}
       <div className="aspect-square overflow-hidden rounded-lg bg-gray-100">
         <img
-          src={`${images[selectedImage].imgix_url}?w=800&h=800&fit=crop&auto=format,compress`}
+          src={`${currentImage.imgix_url}?w=800&h=800&fit=crop&auto=format,compress`}
           alt={product.metadata.name}
           className="w-full h-full object-cover"
           width={400}
