@@ -1,6 +1,6 @@
 // app/categories/[slug]/page.tsx
 import { cosmic } from '@/lib/cosmic'
-import { Product } from '@/types'
+import { Product, Category } from '@/types'
 import ProductCard from '@/components/ProductCard'
 import { notFound } from 'next/navigation'
 
@@ -8,12 +8,21 @@ interface CategoryPageProps {
   params: Promise<{ slug: string }>
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { slug } = await params
-
+async function getCategoryData(slug: string): Promise<{ category: Category; products: Product[] } | null> {
   try {
+    // Get the category details
+    const categoryResponse = await cosmic.objects
+      .findOne({ 
+        type: 'categories',
+        slug: slug
+      })
+      .props(['id', 'title', 'slug', 'metadata'])
+      .depth(1)
+
+    const category = categoryResponse.object as Category
+
     // Get all products for this category
-    const { objects: products } = await cosmic.objects
+    const productsResponse = await cosmic.objects
       .find({ 
         type: 'products',
         'metadata.category': slug
@@ -21,56 +30,84 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
 
-    if (!products || products.length === 0) {
-      notFound()
+    const products = productsResponse.objects as Product[]
+
+    return { category, products }
+  } catch (error: any) {
+    if (error.status === 404) {
+      return null
     }
+    throw error
+  }
+}
 
-    // Create a human-readable category name from slug
-    const categoryName = slug
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { slug } = await params
+  const data = await getCategoryData(slug)
 
-    return (
-      <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-black mb-4">{categoryName}</h1>
-            <p className="text-gray-600">
-              {products.length} {products.length === 1 ? 'product' : 'products'} in this category
+  if (!data) {
+    notFound()
+  }
+
+  const { category, products } = data
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Category Header */}
+        <div className="text-center mb-12">
+          {category.metadata.image && (
+            <div className="mb-8">
+              <img
+                src={`${category.metadata.image.imgix_url}?w=800&h=400&fit=crop&auto=format,compress`}
+                alt={category.metadata.name}
+                className="w-full max-w-4xl mx-auto h-64 object-cover rounded-lg"
+                width={800}
+                height={400}
+              />
+            </div>
+          )}
+          <h1 className="text-4xl font-bold text-black mb-4">{category.metadata.name}</h1>
+          {category.metadata.description && (
+            <p className="text-gray-600 text-lg mb-4 max-w-3xl mx-auto">
+              {category.metadata.description}
             </p>
-          </div>
+          )}
+          <p className="text-gray-500">
+            {products.length} {products.length === 1 ? 'product' : 'products'} in this category
+          </p>
+        </div>
 
+        {/* Products Grid */}
+        {products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product: Product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-6xl mb-4">📦</div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">No products found</h3>
+            <p className="text-gray-500">
+              Check back later for new products in this category.
+            </p>
+          </div>
+        )}
       </div>
-    )
-  } catch (error) {
-    console.error('Error fetching category products:', error)
-    notFound()
-  }
+    </div>
+  )
 }
 
 export async function generateStaticParams() {
   try {
-    // Get all products to extract unique category slugs
-    const { objects: products } = await cosmic.objects
-      .find({ type: 'products' })
-      .props(['metadata'])
+    // Get all categories to generate static params
+    const { objects: categories } = await cosmic.objects
+      .find({ type: 'categories' })
+      .props(['slug'])
 
-    const categorySet = new Set<string>()
-    products.forEach((product: Product) => {
-      if (product.metadata.category) {
-        categorySet.add(product.metadata.category)
-      }
-    })
-
-    return Array.from(categorySet).map((slug) => ({
-      slug,
+    return categories.map((category: Category) => ({
+      slug: category.slug,
     }))
   } catch (error) {
     console.error('Error generating static params:', error)

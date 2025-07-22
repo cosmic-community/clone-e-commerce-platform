@@ -20,7 +20,7 @@ export interface Product extends CosmicObject {
       url: string;
       imgix_url: string;
     }>;
-    category?: string;
+    category: string; // Category slug reference
     sizes?: string[];
     colors?: string[];
     product_type?: {
@@ -41,12 +41,16 @@ export interface Category extends CosmicObject {
       url: string;
       imgix_url: string;
     };
-    parent_category?: Category;
+    parent_category?: Category | null;
     target_audience?: {
       key: string;
       value: string;
     };
   };
+}
+
+export interface CategoryWithProducts extends Category {
+  products: Product[];
 }
 
 export interface Athlete extends CosmicObject {

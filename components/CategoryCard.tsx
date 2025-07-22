@@ -1,17 +1,13 @@
 import Link from 'next/link'
-import { Product } from '@/types'
+import { CategoryWithProducts } from '@/types'
 
 interface CategoryCardProps {
-  category: {
-    slug: string
-    name: string
-    products: Product[]
-  }
+  category: CategoryWithProducts
 }
 
 export default function CategoryCard({ category }: CategoryCardProps) {
-  // Get the first product's image as category thumbnail
-  const thumbnailImage = category.products[0]?.metadata.images?.[0]
+  // Use category's own image if available, otherwise use first product's image
+  const thumbnailImage = category.metadata.image || category.products[0]?.metadata.images?.[0]
 
   return (
     <Link
@@ -21,8 +17,8 @@ export default function CategoryCard({ category }: CategoryCardProps) {
       <div className="aspect-square bg-gray-100 overflow-hidden">
         {thumbnailImage ? (
           <img
-            src={`${thumbnailImage.imgix_url}?w=400&h=400&fit=crop&auto=format,compress`}
-            alt={category.name}
+            src={`${thumbnailImage.imgix_url}?w=600&h=600&fit=crop&auto=format,compress`}
+            alt={category.metadata.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
             width={400}
             height={400}
@@ -39,9 +35,14 @@ export default function CategoryCard({ category }: CategoryCardProps) {
       
       <div className="p-6">
         <h3 className="text-xl font-semibold text-black mb-2 group-hover:text-gray-700">
-          {category.name}
+          {category.metadata.name}
         </h3>
-        <p className="text-gray-600">
+        {category.metadata.description && (
+          <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+            {category.metadata.description}
+          </p>
+        )}
+        <p className="text-gray-500">
           {category.products.length} {category.products.length === 1 ? 'product' : 'products'}
         </p>
       </div>
