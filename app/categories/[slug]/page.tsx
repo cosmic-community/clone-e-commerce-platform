@@ -21,11 +21,11 @@ async function getCategoryData(slug: string): Promise<{ category: Category; prod
 
     const category = categoryResponse.object as Category
 
-    // Get all products for this category
+    // Get all products for this category using the category ID
     const productsResponse = await cosmic.objects
       .find({ 
         type: 'products',
-        'metadata.category': slug
+        'metadata.category': category.id
       })
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
@@ -59,7 +59,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           {category.metadata.image && (
             <div className="mb-8">
               <img
-                src={`${category.metadata.image.imgix_url}?w=800&h=400&fit=crop&auto=format,compress`}
+                src={`${category.metadata.image.imgix_url}?w=1600&h=600&fit=crop&auto=format,compress`}
                 alt={category.metadata.name}
                 className="w-full max-w-4xl mx-auto h-64 object-cover rounded-lg"
                 width={800}

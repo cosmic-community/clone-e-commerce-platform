@@ -20,7 +20,7 @@ export interface Product extends CosmicObject {
       url: string;
       imgix_url: string;
     }>;
-    category: string; // Category slug reference
+    category: Category; // Now references the full category object
     sizes?: string[];
     colors?: string[];
     product_type?: {

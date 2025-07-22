@@ -1,23 +1,21 @@
 import Link from 'next/link'
-import { CategoryWithProducts } from '@/types'
+import { Category } from '@/types'
 
 interface CategoryCardProps {
-  category: CategoryWithProducts
+  category: Category
+  productCount?: number
 }
 
-export default function CategoryCard({ category }: CategoryCardProps) {
-  // Use category's own image if available, otherwise use first product's image
-  const thumbnailImage = category.metadata.image || category.products[0]?.metadata.images?.[0]
-
+export default function CategoryCard({ category, productCount = 0 }: CategoryCardProps) {
   return (
     <Link
       href={`/categories/${category.slug}`}
       className="group block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-200"
     >
       <div className="aspect-square bg-gray-100 overflow-hidden">
-        {thumbnailImage ? (
+        {category.metadata.image ? (
           <img
-            src={`${thumbnailImage.imgix_url}?w=600&h=600&fit=crop&auto=format,compress`}
+            src={`${category.metadata.image.imgix_url}?w=800&h=800&fit=crop&auto=format,compress`}
             alt={category.metadata.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
             width={400}
@@ -43,8 +41,13 @@ export default function CategoryCard({ category }: CategoryCardProps) {
           </p>
         )}
         <p className="text-gray-500">
-          {category.products.length} {category.products.length === 1 ? 'product' : 'products'}
+          {productCount} {productCount === 1 ? 'product' : 'products'}
         </p>
+        {category.metadata.target_audience && (
+          <p className="text-xs text-gray-400 mt-1">
+            {category.metadata.target_audience.value}
+          </p>
+        )}
       </div>
     </Link>
   )
