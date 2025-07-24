@@ -31,6 +31,18 @@ export interface Product extends CosmicObject {
     };
     featured?: boolean;
     new_release?: boolean;
+    localized_content?: {
+      [locale: string]: {
+        title?: string;
+        description?: string;
+        features?: string[];
+        materials?: string[];
+        care_instructions?: string[];
+      };
+    };
+    features?: string[];
+    materials?: string[];
+    care_instructions?: string[];
   };
 }
 

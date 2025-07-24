@@ -43,10 +43,10 @@ async function getProduct(slug: string, locale: string): Promise<Product | null>
           title: localizedContent.title || product.title,
           metadata: {
             ...product.metadata,
-            description: localizedContent.description || product.metadata?.description,
-            features: localizedContent.features || product.metadata?.features,
-            materials: localizedContent.materials || product.metadata?.materials,
-            care_instructions: localizedContent.care_instructions || product.metadata?.care_instructions
+            description: localizedContent.description || product.metadata.description,
+            features: localizedContent.features || product.metadata.features,
+            materials: localizedContent.materials || product.metadata.materials,
+            care_instructions: localizedContent.care_instructions || product.metadata.care_instructions
           }
         }
       }
@@ -63,7 +63,7 @@ async function getProduct(slug: string, locale: string): Promise<Product | null>
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const headersList = headers()
+  const headersList = await headers()
   const locale = headersList.get('x-locale') || 'en'
   
   const product = await getProduct(slug, locale)
