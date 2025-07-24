@@ -10,6 +10,7 @@ if (!process.env.COSMIC_READ_KEY) {
   throw new Error('COSMIC_READ_KEY environment variable is required')
 }
 
+// Server-side Cosmic client with staging environment
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
   readKey: process.env.COSMIC_READ_KEY as string,
@@ -26,7 +27,7 @@ function getLocaleForQuery() {
   return DEFAULT_LOCALE
 }
 
-// Helper functions for common queries with locale support
+// Server-side helper functions for common queries with locale support
 export async function getProductsByCategory(categoryId: string, locale?: string): Promise<Product[]> {
   try {
     const queryLocale = locale || getLocaleForQuery()
