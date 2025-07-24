@@ -1,25 +1,7 @@
-import { cosmic } from '@/lib/cosmic'
+import { getFeaturedProducts } from '@/lib/cosmic'
 import ProductCard from '@/components/ProductCard'
 import { Product } from '@/types'
-
-async function getFeaturedProducts(): Promise<Product[]> {
-  try {
-    const response = await cosmic.objects
-      .find({
-        type: 'products',
-        'metadata.featured': true
-      })
-      .props(['id', 'title', 'slug', 'metadata'])
-      .depth(1)
-
-    return response.objects as Product[]
-  } catch (error: any) {
-    if (error.status === 404) {
-      return []
-    }
-    throw error
-  }
-}
+import Link from 'next/link'
 
 export default async function FeaturedProducts() {
   const products = await getFeaturedProducts()
@@ -38,16 +20,16 @@ export default async function FeaturedProducts() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-3 gap-8">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <button className="bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition-colors">
+          <Link href="/products" className="bg-black text-white px-8 py-3 rounded-full font-semibold hover:bg-gray-800 transition-colors inline-block">
             Shop All Products
-          </button>
+          </Link>
         </div>
       </div>
     </section>

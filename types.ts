@@ -7,10 +7,12 @@ export interface CosmicObject {
   type: string;
   created_at: string;
   modified_at: string;
+  locale?: string;
 }
 
 export interface Product extends CosmicObject {
   type: 'products';
+  locale?: string;
   metadata: {
     name: string;
     description: string;
@@ -20,7 +22,7 @@ export interface Product extends CosmicObject {
       url: string;
       imgix_url: string;
     }>;
-    category: Category; // Now references the full category object
+    category: Category | string; // Can be full object or just ID
     sizes?: string[];
     colors?: string[];
     product_type?: {
@@ -29,6 +31,18 @@ export interface Product extends CosmicObject {
     };
     featured?: boolean;
     new_release?: boolean;
+    localized_content?: {
+      [locale: string]: {
+        title?: string;
+        description?: string;
+        features?: string[];
+        materials?: string[];
+        care_instructions?: string[];
+      };
+    };
+    features?: string[];
+    materials?: string[];
+    care_instructions?: string[];
   };
 }
 

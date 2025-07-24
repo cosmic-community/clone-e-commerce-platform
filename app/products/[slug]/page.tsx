@@ -2,22 +2,42 @@
 import { cosmic } from '@/lib/cosmic'
 import { Product } from '@/types'
 import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import ProductGallery from '@/components/ProductGallery'
 import ProductDetails from '@/components/ProductDetails'
 
-async function getProduct(slug: string): Promise<Product | null> {
+async function getProduct(slug: string, locale: string): Promise<Product | null> {
   try {
     const response = await cosmic.objects
       .findOne({
         type: 'products',
-        slug
+        slug: slug,
+        locale: locale
       })
+      .props(['id', 'title', 'slug', 'metadata', 'locale'])
       .depth(1)
 
     return response.object as Product
   } catch (error: any) {
     if (error.status === 404) {
-      return null
+      // Try fallback to default locale (en) if localized version not found
+      try {
+        const fallbackResponse = await cosmic.objects
+          .findOne({
+            type: 'products',
+            slug: slug,
+            locale: 'en'
+          })
+          .props(['id', 'title', 'slug', 'metadata', 'locale'])
+          .depth(1)
+
+        return fallbackResponse.object as Product
+      } catch (fallbackError: any) {
+        if (fallbackError.status === 404) {
+          return null
+        }
+        throw fallbackError
+      }
     }
     throw error
   }
@@ -25,7 +45,10 @@ async function getProduct(slug: string): Promise<Product | null> {
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const product = await getProduct(slug)
+  const headersList = await headers()
+  const locale = headersList.get('x-locale') || 'en'
+  
+  const product = await getProduct(slug, locale)
 
   if (!product) {
     notFound()
