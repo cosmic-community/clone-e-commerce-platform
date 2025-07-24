@@ -22,9 +22,16 @@ async function getCategoriesWithProductCounts(): Promise<Array<Category & { prod
 
     // Count products for each category
     const categoriesWithCounts = categories.map(category => {
-      const productCount = products.filter(product => 
-        product.metadata.category?.id === category.id
-      ).length
+      const productCount = products.filter(product => {
+        const productCategory = product.metadata.category
+        // Handle both string and object category references
+        if (typeof productCategory === 'string') {
+          return productCategory === category.slug
+        } else if (productCategory && typeof productCategory === 'object' && 'id' in productCategory) {
+          return productCategory.id === category.id
+        }
+        return false
+      }).length
 
       return {
         ...category,
