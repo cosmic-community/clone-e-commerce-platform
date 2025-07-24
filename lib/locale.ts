@@ -23,9 +23,13 @@ export function getCurrentLocale(): SupportedLocale {
     return DEFAULT_LOCALE;
   }
   
-  const stored = localStorage.getItem('nike-locale');
-  if (stored && isValidLocale(stored)) {
-    return stored;
+  try {
+    const stored = localStorage.getItem('nike-locale');
+    if (stored && isValidLocale(stored)) {
+      return stored;
+    }
+  } catch (error) {
+    console.error('Error reading from localStorage:', error);
   }
   
   return DEFAULT_LOCALE;
@@ -36,5 +40,9 @@ export function setCurrentLocale(locale: SupportedLocale): void {
     return;
   }
   
-  localStorage.setItem('nike-locale', locale);
+  try {
+    localStorage.setItem('nike-locale', locale);
+  } catch (error) {
+    console.error('Error writing to localStorage:', error);
+  }
 }

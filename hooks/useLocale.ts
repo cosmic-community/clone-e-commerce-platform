@@ -9,17 +9,29 @@ export function useLocale() {
 
   useEffect(() => {
     // Only run on client side
-    const currentLocale = getCurrentLocale();
-    setLocale(currentLocale);
-    setIsLoaded(true);
+    try {
+      const currentLocale = getCurrentLocale();
+      setLocale(currentLocale);
+      setIsLoaded(true);
+    } catch (error) {
+      console.error('Error loading locale:', error);
+      setLocale(DEFAULT_LOCALE);
+      setIsLoaded(true);
+    }
   }, []);
 
   const changeLocale = (newLocale: SupportedLocale) => {
-    setLocale(newLocale);
-    setCurrentLocale(newLocale);
-    
-    // Trigger page refresh to re-fetch data with new locale
-    window.location.reload();
+    try {
+      setLocale(newLocale);
+      setCurrentLocale(newLocale);
+      
+      // Use router navigation instead of window.location.reload to avoid hydration issues
+      if (typeof window !== 'undefined') {
+        window.location.href = window.location.pathname;
+      }
+    } catch (error) {
+      console.error('Error changing locale:', error);
+    }
   };
 
   return {

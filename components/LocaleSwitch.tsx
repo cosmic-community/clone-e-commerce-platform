@@ -7,8 +7,13 @@ import { SUPPORTED_LOCALES, SupportedLocale, getLocaleInfo } from '@/lib/locale'
 
 export default function LocaleSwitch() {
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { locale, changeLocale, isLoaded } = useLocale();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -23,7 +28,8 @@ export default function LocaleSwitch() {
     };
   }, []);
 
-  if (!isLoaded) {
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted || !isLoaded) {
     return (
       <div className="relative">
         <button className="flex items-center space-x-2 px-3 py-2 text-sm hover:bg-gray-100 rounded-md">
