@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Search, Heart, ShoppingBag, Menu, X } from 'lucide-react'
+import LocaleSwitch from '@/components/LocaleSwitch'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -19,7 +20,9 @@ export default function Header() {
             <span>|</span>
             <Link href="/join" className="hover:text-gray-600">Join Us</Link>
           </div>
-          <div>
+          <div className="flex items-center space-x-4">
+            <LocaleSwitch />
+            <span>|</span>
             <Link href="/sign-in" className="hover:text-gray-600">Sign In</Link>
           </div>
         </div>
@@ -96,6 +99,9 @@ export default function Header() {
                 <Link href="/jordan" className="block text-black font-medium">Jordan</Link>
                 <Link href="/sport" className="block text-black font-medium">Sport</Link>
               </nav>
+              <div className="pt-4 border-t border-gray-200">
+                <LocaleSwitch />
+              </div>
             </div>
           </div>
         )}
