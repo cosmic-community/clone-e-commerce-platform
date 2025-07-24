@@ -1,6 +1,7 @@
 import { createBucketClient } from '@cosmicjs/sdk'
 import { Product, Category } from '@/types'
-import { getCurrentLocale, DEFAULT_LOCALE } from '@/lib/locale'
+import { DEFAULT_LOCALE, SupportedLocale } from '@/lib/locale'
+import { getLocaleFromHeaders } from '@/lib/cookies'
 
 if (!process.env.COSMIC_BUCKET_SLUG) {
   throw new Error('COSMIC_BUCKET_SLUG environment variable is required')
@@ -21,16 +22,24 @@ export const cosmic = createBucketClient({
 export const COSMIC_BUCKET_SLUG = process.env.COSMIC_BUCKET_SLUG as string
 
 // Helper function to get the current locale for server-side operations
-function getLocaleForQuery() {
-  // For server-side operations, we'll use the default locale
-  // Client-side components can override this by passing locale explicitly
-  return DEFAULT_LOCALE
+function getLocaleForQuery(explicitLocale?: string): string {
+  if (explicitLocale) {
+    return explicitLocale
+  }
+  
+  // Try to get locale from headers (set by middleware from cookie)
+  try {
+    return getLocaleFromHeaders()
+  } catch (error) {
+    console.error('Error getting locale for query:', error)
+    return DEFAULT_LOCALE
+  }
 }
 
 // Server-side helper functions for common queries with locale support
 export async function getProductsByCategory(categoryId: string, locale?: string): Promise<Product[]> {
   try {
-    const queryLocale = locale || getLocaleForQuery()
+    const queryLocale = getLocaleForQuery(locale)
     const response = await cosmic.objects
       .find({ 
         type: 'products',
@@ -86,7 +95,7 @@ export async function getAllCategories(): Promise<Category[]> {
 
 export async function getAllProducts(locale?: string): Promise<Product[]> {
   try {
-    const queryLocale = locale || getLocaleForQuery()
+    const queryLocale = getLocaleForQuery(locale)
     const response = await cosmic.objects
       .find({ 
         type: 'products',
@@ -106,7 +115,7 @@ export async function getAllProducts(locale?: string): Promise<Product[]> {
 
 export async function getFeaturedProducts(locale?: string): Promise<Product[]> {
   try {
-    const queryLocale = locale || getLocaleForQuery()
+    const queryLocale = getLocaleForQuery(locale)
     const response = await cosmic.objects
       .find({
         type: 'products',
@@ -127,7 +136,7 @@ export async function getFeaturedProducts(locale?: string): Promise<Product[]> {
 
 export async function getProductBySlug(slug: string, locale?: string): Promise<Product | null> {
   try {
-    const queryLocale = locale || getLocaleForQuery()
+    const queryLocale = getLocaleForQuery(locale)
     const response = await cosmic.objects
       .findOne({
         type: 'products',

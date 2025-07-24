@@ -24,12 +24,26 @@ export function getCurrentLocale(): SupportedLocale {
   }
   
   try {
+    // First try to get from cookie
+    const cookies = document.cookie.split(';');
+    const localeCookie = cookies.find(cookie => cookie.trim().startsWith('nike-locale='));
+    
+    if (localeCookie) {
+      const cookieValue = localeCookie.split('=')[1];
+      if (cookieValue && isValidLocale(cookieValue)) {
+        return cookieValue;
+      }
+    }
+    
+    // Fallback to localStorage
     const stored = localStorage.getItem('nike-locale');
     if (stored && isValidLocale(stored)) {
+      // Sync localStorage value to cookie
+      document.cookie = `nike-locale=${stored}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
       return stored;
     }
   } catch (error) {
-    console.error('Error reading from localStorage:', error);
+    console.error('Error reading locale:', error);
   }
   
   return DEFAULT_LOCALE;
@@ -41,8 +55,10 @@ export function setCurrentLocale(locale: SupportedLocale): void {
   }
   
   try {
+    // Set both cookie and localStorage for redundancy
+    document.cookie = `nike-locale=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
     localStorage.setItem('nike-locale', locale);
   } catch (error) {
-    console.error('Error writing to localStorage:', error);
+    console.error('Error writing locale:', error);
   }
 }

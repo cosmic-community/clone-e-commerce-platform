@@ -20,14 +20,17 @@ export function useLocale() {
     }
   }, []);
 
-  const changeLocale = (newLocale: SupportedLocale) => {
+  const changeLocale = async (newLocale: SupportedLocale) => {
     try {
       setLocale(newLocale);
       setCurrentLocale(newLocale);
       
-      // Use router navigation instead of window.location.reload to avoid hydration issues
+      // Set cookie on client side
+      document.cookie = `nike-locale=${newLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+      
+      // Force a page reload to apply the new locale on the server side
       if (typeof window !== 'undefined') {
-        window.location.href = window.location.pathname;
+        window.location.reload();
       }
     } catch (error) {
       console.error('Error changing locale:', error);
