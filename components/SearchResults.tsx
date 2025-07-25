@@ -30,8 +30,8 @@ async function searchContent(query: string, category?: string, type?: string): P
     }
   }
 
-  // Get locale from headers (set by middleware)
-  const headersList = headers()
+  // Get locale from headers (set by middleware) - await the Promise in Next.js 15+
+  const headersList = await headers()
   const locale = headersList.get('x-locale') || DEFAULT_LOCALE
   const validLocale = isValidLocale(locale) ? locale : DEFAULT_LOCALE
 
