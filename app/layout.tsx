@@ -10,18 +10,7 @@ export const metadata: Metadata = {
   title: 'Nike Clone - Just Do It',
   description: 'Nike-inspired e-commerce platform powered by Cosmic CMS',
   icons: {
-    icon: [
-      {
-        url: '/favicon.ico',
-        sizes: '16x16',
-        type: 'image/x-icon',
-      },
-      {
-        url: '/icon.png',
-        sizes: '32x32',
-        type: 'image/png',
-      },
-    ],
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👟</text></svg>",
   },
 }
 
@@ -32,10 +21,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" sizes="16x16" type="image/x-icon" />
-        <link rel="icon" href="/icon.png" sizes="32x32" type="image/png" />
-      </head>
       <body className={inter.className}>
         <Header />
         {children}
