@@ -15,9 +15,9 @@ export function middleware(request: NextRequest) {
       // Try Accept-Language header as fallback
       const acceptLanguage = request.headers.get('accept-language');
       if (acceptLanguage) {
-        const languages = acceptLanguage.split(',').map(lang => lang.split(';')[0].trim());
+        const languages = acceptLanguage.split(',').map(lang => lang.split(';')[0]?.trim()).filter(Boolean);
         for (const lang of languages) {
-          const langCode = lang.split('-')[0];
+          const langCode = lang?.split('-')[0];
           if (langCode && isValidLocale(langCode)) {
             locale = langCode;
             break;

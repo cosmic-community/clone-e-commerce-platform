@@ -95,9 +95,9 @@ export function getServerLocale(headers: Headers): SupportedLocale {
     // Check Accept-Language header
     const acceptLanguage = headers.get('accept-language');
     if (acceptLanguage) {
-      const languages = acceptLanguage.split(',').map(lang => lang.split(';')[0].trim());
+      const languages = acceptLanguage.split(',').map(lang => lang.split(';')[0]?.trim()).filter(Boolean);
       for (const lang of languages) {
-        const langCode = lang.split('-')[0];
+        const langCode = lang?.split('-')[0];
         if (langCode && isValidLocale(langCode)) {
           return langCode;
         }
