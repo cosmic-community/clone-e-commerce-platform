@@ -13,10 +13,6 @@
     --accent-foreground: 255 255 255;
   }
 
-  * {
-    @apply border-border;
-  }
-  
   body {
     @apply bg-background text-foreground;
   }
