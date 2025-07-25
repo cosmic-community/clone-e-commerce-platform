@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, X } from 'lucide-react'
 import InlineSearch from './InlineSearch'
@@ -11,7 +11,7 @@ interface SearchBarProps {
   onClose?: () => void
 }
 
-export default function SearchBar({ 
+function SearchBarContent({ 
   initialQuery = '', 
   showInlineResults = true,
   onClose 
@@ -29,7 +29,7 @@ export default function SearchBar({
     e.preventDefault()
     if (query.trim()) {
       // Navigate to dedicated search page
-      const params = new URLSearchParams(searchParams)
+      const params = new URLSearchParams(searchParams.toString())
       params.set('q', query.trim())
       router.push(`/search?${params.toString()}`)
       setShowResults(false)
@@ -102,5 +102,25 @@ export default function SearchBar({
         </div>
       )}
     </div>
+  )
+}
+
+export default function SearchBar(props: SearchBarProps) {
+  return (
+    <Suspense fallback={
+      <div className="relative w-full max-w-md">
+        <div className="flex items-center bg-gray-100 rounded-full px-4 py-3">
+          <Search className="w-5 h-5 text-gray-500 mr-3 flex-shrink-0" />
+          <input
+            type="text"
+            placeholder="Search for products..."
+            className="bg-transparent outline-none text-black placeholder-gray-500 flex-1 text-base"
+            disabled
+          />
+        </div>
+      </div>
+    }>
+      <SearchBarContent {...props} />
+    </Suspense>
   )
 }
