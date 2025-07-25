@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cosmic } from '@/lib/cosmic'
 import { Product, Category } from '@/types'
+import { isValidLocale, DEFAULT_LOCALE } from '@/lib/locale'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q')
+
+  // Get locale from headers (set by middleware)
+  const locale = request.headers.get('x-locale') || DEFAULT_LOCALE
+  const validLocale = isValidLocale(locale) ? locale : DEFAULT_LOCALE
 
   if (!query || query.trim().length < 3) {
     return NextResponse.json({ 
@@ -19,11 +24,12 @@ export async function GET(request: NextRequest) {
       categories: [] as Category[]
     }
 
-    // Quick product search - limit to 5 results
+    // Quick product search with locale filtering - limit to 5 results
     try {
       const productResponse = await cosmic.objects
         .find({
           type: 'products',
+          'metadata.locale': validLocale,
           $or: [
             { title: { $regex: query, $options: 'i' } },
             { 'metadata.name': { $regex: query, $options: 'i' } }
@@ -40,11 +46,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Quick category search - limit to 3 results
+    // Quick category search with locale filtering - limit to 3 results
     try {
       const categoryResponse = await cosmic.objects
         .find({
           type: 'categories',
+          'metadata.locale': validLocale,
           $or: [
             { title: { $regex: query, $options: 'i' } },
             { 'metadata.name': { $regex: query, $options: 'i' } }

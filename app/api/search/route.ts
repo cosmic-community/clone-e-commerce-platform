@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cosmic } from '@/lib/cosmic'
 import { Product, Category, Article, Athlete } from '@/types'
+import { isValidLocale, DEFAULT_LOCALE } from '@/lib/locale'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -8,6 +9,10 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category')
   const type = searchParams.get('type')
   const limit = parseInt(searchParams.get('limit') || '20')
+
+  // Get locale from headers (set by middleware)
+  const locale = request.headers.get('x-locale') || DEFAULT_LOCALE
+  const validLocale = isValidLocale(locale) ? locale : DEFAULT_LOCALE
 
   if (!query || query.trim().length < 2) {
     return NextResponse.json({ 
@@ -24,11 +29,12 @@ export async function GET(request: NextRequest) {
       totalResults: 0
     }
 
-    // Search products
+    // Search products with locale filtering
     if (!type || type === 'products') {
       try {
         let productQuery: any = {
           type: 'products',
+          'metadata.locale': validLocale,
           $or: [
             { title: { $regex: query, $options: 'i' } },
             { 'metadata.name': { $regex: query, $options: 'i' } },
@@ -54,12 +60,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search categories
+    // Search categories with locale filtering
     if (!type || type === 'categories') {
       try {
         const categoryResponse = await cosmic.objects
           .find({
             type: 'categories',
+            'metadata.locale': validLocale,
             $or: [
               { title: { $regex: query, $options: 'i' } },
               { 'metadata.name': { $regex: query, $options: 'i' } },
@@ -77,12 +84,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search articles
+    // Search articles with locale filtering
     if (!type || type === 'articles') {
       try {
         const articleResponse = await cosmic.objects
           .find({
             type: 'articles',
+            'metadata.locale': validLocale,
             $or: [
               { title: { $regex: query, $options: 'i' } },
               { 'metadata.headline': { $regex: query, $options: 'i' } },
@@ -100,12 +108,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search athletes
+    // Search athletes with locale filtering
     if (!type || type === 'athletes') {
       try {
         const athleteResponse = await cosmic.objects
           .find({
             type: 'athletes',
+            'metadata.locale': validLocale,
             $or: [
               { title: { $regex: query, $options: 'i' } },
               { 'metadata.name': { $regex: query, $options: 'i' } },
