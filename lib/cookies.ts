@@ -1,13 +1,16 @@
-import { cookies } from 'next/headers'
 import { SupportedLocale, DEFAULT_LOCALE, isValidLocale } from '@/lib/locale'
 
 export async function getServerLocale(): Promise<SupportedLocale> {
   try {
-    const cookieStore = await cookies()
-    const localeCookie = cookieStore.get('nike-locale')
-    
-    if (localeCookie?.value && isValidLocale(localeCookie.value)) {
-      return localeCookie.value
+    // Only import cookies when actually needed and in server context
+    if (typeof window === 'undefined') {
+      const { cookies } = await import('next/headers')
+      const cookieStore = await cookies()
+      const localeCookie = cookieStore.get('nike-locale')
+      
+      if (localeCookie?.value && isValidLocale(localeCookie.value)) {
+        return localeCookie.value
+      }
     }
   } catch (error) {
     console.error('Error reading locale from cookies:', error)
@@ -18,13 +21,17 @@ export async function getServerLocale(): Promise<SupportedLocale> {
 
 export async function setServerLocale(locale: SupportedLocale): Promise<void> {
   try {
-    const cookieStore = await cookies()
-    cookieStore.set('nike-locale', locale, {
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      httpOnly: false, // Allow client-side access
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
-    })
+    // Only import cookies when actually needed and in server context
+    if (typeof window === 'undefined') {
+      const { cookies } = await import('next/headers')
+      const cookieStore = await cookies()
+      cookieStore.set('nike-locale', locale, {
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        httpOnly: false, // Allow client-side access
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      })
+    }
   } catch (error) {
     console.error('Error setting locale cookie:', error)
   }
