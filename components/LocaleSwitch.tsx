@@ -57,7 +57,7 @@ export default function LocaleSwitch() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-[9999]">
           <div className="py-2">
             {Object.entries(SUPPORTED_LOCALES).map(([code, info]) => (
               <button
