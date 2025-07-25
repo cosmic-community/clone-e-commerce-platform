@@ -1,15 +1,42 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { isValidLocale, DEFAULT_LOCALE } from '@/lib/locale'
 
 export function middleware(request: NextRequest) {
-  // Get locale from cookie or default to 'en'
-  const locale = request.cookies.get('nike-locale')?.value || 'en'
+  // Get locale from cookie, header, or default
+  let locale = DEFAULT_LOCALE;
+  
+  try {
+    // First try cookie
+    const cookieLocale = request.cookies.get('nike-locale')?.value;
+    if (cookieLocale && isValidLocale(cookieLocale)) {
+      locale = cookieLocale;
+    } else {
+      // Try Accept-Language header as fallback
+      const acceptLanguage = request.headers.get('accept-language');
+      if (acceptLanguage) {
+        const languages = acceptLanguage.split(',').map(lang => lang.split(';')[0].trim());
+        for (const lang of languages) {
+          const langCode = lang.split('-')[0];
+          if (langCode && isValidLocale(langCode)) {
+            locale = langCode;
+            break;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Middleware locale detection error:', error);
+    locale = DEFAULT_LOCALE;
+  }
   
   // Clone the request headers
   const requestHeaders = new Headers(request.headers)
   
   // Add the locale to headers so it can be accessed in server components
   requestHeaders.set('x-locale', locale)
+  
+  console.log('Middleware setting locale:', locale) // Debug log
   
   // Return response with modified headers
   return NextResponse.next({

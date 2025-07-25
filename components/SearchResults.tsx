@@ -35,6 +35,8 @@ async function searchContent(query: string, category?: string, type?: string): P
   const locale = headersList.get('x-locale') || DEFAULT_LOCALE
   const validLocale = isValidLocale(locale) ? locale : DEFAULT_LOCALE
 
+  console.log('Search locale:', validLocale, 'Query:', query) // Debug log
+
   const results: SearchResult = {
     products: [],
     categories: [],
@@ -62,6 +64,8 @@ async function searchContent(query: string, category?: string, type?: string): P
           productQuery['metadata.category'] = category
         }
 
+        console.log('Product search query:', JSON.stringify(productQuery, null, 2)) // Debug log
+
         const productResponse = await cosmic.objects
           .find(productQuery)
           .props(['id', 'title', 'slug', 'metadata'])
@@ -69,6 +73,7 @@ async function searchContent(query: string, category?: string, type?: string): P
           .limit(20)
 
         results.products = productResponse.objects as Product[]
+        console.log('Found products:', results.products.length) // Debug log
       } catch (error: any) {
         if (error.status !== 404) {
           console.error('Error searching products:', error)
@@ -94,6 +99,7 @@ async function searchContent(query: string, category?: string, type?: string): P
           .limit(10)
 
         results.categories = categoryResponse.objects as Category[]
+        console.log('Found categories:', results.categories.length) // Debug log
       } catch (error: any) {
         if (error.status !== 404) {
           console.error('Error searching categories:', error)

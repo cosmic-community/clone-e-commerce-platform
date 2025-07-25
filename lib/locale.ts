@@ -29,7 +29,7 @@ export function getCurrentLocale(): SupportedLocale {
     const localeCookie = cookies.find(cookie => cookie.trim().startsWith('nike-locale='));
     
     if (localeCookie) {
-      const cookieValue = localeCookie.split('=')[1];
+      const cookieValue = localeCookie.split('=')[1]?.trim();
       if (cookieValue && isValidLocale(cookieValue)) {
         return cookieValue;
       }
@@ -41,6 +41,12 @@ export function getCurrentLocale(): SupportedLocale {
       // Sync localStorage value to cookie
       document.cookie = `nike-locale=${stored}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
       return stored;
+    }
+    
+    // Browser language detection as final fallback
+    const browserLang = navigator.language.split('-')[0];
+    if (browserLang && isValidLocale(browserLang)) {
+      return browserLang;
     }
   } catch (error) {
     console.error('Error reading locale:', error);
@@ -61,4 +67,45 @@ export function setCurrentLocale(locale: SupportedLocale): void {
   } catch (error) {
     console.error('Error writing locale:', error);
   }
+}
+
+// Server-side locale detection from headers or cookies
+export function getServerLocale(headers: Headers): SupportedLocale {
+  try {
+    // First check custom header set by middleware
+    const localeHeader = headers.get('x-locale');
+    if (localeHeader && isValidLocale(localeHeader)) {
+      return localeHeader;
+    }
+    
+    // Check cookie header
+    const cookieHeader = headers.get('cookie');
+    if (cookieHeader) {
+      const cookies = cookieHeader.split(';');
+      const localeCookie = cookies.find(cookie => cookie.trim().startsWith('nike-locale='));
+      
+      if (localeCookie) {
+        const cookieValue = localeCookie.split('=')[1]?.trim();
+        if (cookieValue && isValidLocale(cookieValue)) {
+          return cookieValue;
+        }
+      }
+    }
+    
+    // Check Accept-Language header
+    const acceptLanguage = headers.get('accept-language');
+    if (acceptLanguage) {
+      const languages = acceptLanguage.split(',').map(lang => lang.split(';')[0].trim());
+      for (const lang of languages) {
+        const langCode = lang.split('-')[0];
+        if (langCode && isValidLocale(langCode)) {
+          return langCode;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error detecting server locale:', error);
+  }
+  
+  return DEFAULT_LOCALE;
 }
