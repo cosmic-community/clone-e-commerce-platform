@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { cosmic } from '@/lib/cosmic'
 import { Product, Category } from '@/types'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -14,6 +13,7 @@ interface InlineSearchProps {
 interface QuickSearchResult {
   products: Product[]
   categories: Category[]
+  error?: string
 }
 
 export default function InlineSearch({ query, onResultClick }: InlineSearchProps) {
@@ -33,10 +33,17 @@ export default function InlineSearch({ query, onResultClick }: InlineSearchProps
     const searchTimeout = setTimeout(async () => {
       setLoading(true)
       try {
-        const searchResults = await quickSearch(query)
-        setResults(searchResults)
+        const response = await fetch(`/api/inline-search?q=${encodeURIComponent(query)}`)
+        const searchResults = await response.json()
+        
+        if (response.ok) {
+          setResults(searchResults)
+        } else {
+          console.error('Inline search error:', searchResults.error)
+          setResults({ products: [], categories: [] })
+        }
       } catch (error) {
-        console.error('Quick search error:', error)
+        console.error('Inline search fetch error:', error)
         setResults({ products: [], categories: [] })
       } finally {
         setLoading(false)
@@ -161,63 +168,4 @@ export default function InlineSearch({ query, onResultClick }: InlineSearchProps
       </div>
     </div>
   )
-}
-
-async function quickSearch(query: string): Promise<QuickSearchResult> {
-  if (!query.trim() || query.length < 3) {
-    return { products: [], categories: [] }
-  }
-
-  const results: QuickSearchResult = {
-    products: [],
-    categories: []
-  }
-
-  try {
-    // Quick product search - limit to 5 results
-    try {
-      const productResponse = await cosmic.objects
-        .find({
-          type: 'products',
-          $or: [
-            { title: { $regex: query, $options: 'i' } },
-            { 'metadata.name': { $regex: query, $options: 'i' } }
-          ]
-        })
-        .props(['id', 'title', 'slug', 'metadata'])
-        .depth(1)
-        .limit(5)
-
-      results.products = productResponse.objects as Product[]
-    } catch (error: any) {
-      if (error.status !== 404) {
-        console.error('Error in quick product search:', error)
-      }
-    }
-
-    // Quick category search - limit to 3 results
-    try {
-      const categoryResponse = await cosmic.objects
-        .find({
-          type: 'categories',
-          $or: [
-            { title: { $regex: query, $options: 'i' } },
-            { 'metadata.name': { $regex: query, $options: 'i' } }
-          ]
-        })
-        .props(['id', 'title', 'slug', 'metadata'])
-        .limit(3)
-
-      results.categories = categoryResponse.objects as Category[]
-    } catch (error: any) {
-      if (error.status !== 404) {
-        console.error('Error in quick category search:', error)
-      }
-    }
-
-  } catch (error) {
-    console.error('Quick search error:', error)
-  }
-
-  return results
 }
