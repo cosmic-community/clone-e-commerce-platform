@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
       const productResponse = await cosmic.objects
         .find({
           type: 'products',
-          'metadata.locale': validLocale,
+          locale: validLocale,
           $or: [
             { title: { $regex: query, $options: 'i' } },
             { 'metadata.name': { $regex: query, $options: 'i' } }
@@ -46,12 +46,11 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Quick category search with locale filtering - limit to 3 results
+    // Quick category search (categories don't have locale) - limit to 3 results
     try {
       const categoryResponse = await cosmic.objects
         .find({
           type: 'categories',
-          'metadata.locale': validLocale,
           $or: [
             { title: { $regex: query, $options: 'i' } },
             { 'metadata.name': { $regex: query, $options: 'i' } }

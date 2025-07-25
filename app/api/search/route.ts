@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       try {
         let productQuery: any = {
           type: 'products',
-          'metadata.locale': validLocale,
+          locale: validLocale,
           $or: [
             { title: { $regex: query, $options: 'i' } },
             { 'metadata.name': { $regex: query, $options: 'i' } },
@@ -60,13 +60,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search categories with locale filtering
+    // Search categories (categories don't have locale, so we search all)
     if (!type || type === 'categories') {
       try {
         const categoryResponse = await cosmic.objects
           .find({
             type: 'categories',
-            'metadata.locale': validLocale,
             $or: [
               { title: { $regex: query, $options: 'i' } },
               { 'metadata.name': { $regex: query, $options: 'i' } },
@@ -84,13 +83,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search articles with locale filtering
+    // Search articles (articles don't have locale in the data, so we search all)
     if (!type || type === 'articles') {
       try {
         const articleResponse = await cosmic.objects
           .find({
             type: 'articles',
-            'metadata.locale': validLocale,
             $or: [
               { title: { $regex: query, $options: 'i' } },
               { 'metadata.headline': { $regex: query, $options: 'i' } },
@@ -108,13 +106,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search athletes with locale filtering
+    // Search athletes (athletes don't have locale in the data, so we search all)
     if (!type || type === 'athletes') {
       try {
         const athleteResponse = await cosmic.objects
           .find({
             type: 'athletes',
-            'metadata.locale': validLocale,
             $or: [
               { title: { $regex: query, $options: 'i' } },
               { 'metadata.name': { $regex: query, $options: 'i' } },

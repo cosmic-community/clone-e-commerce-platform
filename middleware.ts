@@ -36,8 +36,6 @@ export function middleware(request: NextRequest) {
   // Add the locale to headers so it can be accessed in server components
   requestHeaders.set('x-locale', locale)
   
-  console.log('Middleware setting locale:', locale) // Debug log
-  
   // Return response with modified headers
   return NextResponse.next({
     request: {
