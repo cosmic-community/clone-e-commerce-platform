@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { cosmic } from '@/lib/cosmic'
 import ProductCard from '@/components/ProductCard'
 import { Product } from '@/types'
@@ -13,6 +14,33 @@ async function getJordanProducts(): Promise<Product[]> {
     console.error('Error fetching Jordan products:', error)
     return []
   }
+}
+
+function ProductsGrid({ products }: { products: Product[] }) {
+  if (products.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <div className="text-gray-500 mb-4">
+          <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Jordan Collection Coming Soon</h3>
+        <p className="text-gray-600">The legendary Jordan collection will be available soon. Stay tuned for iconic drops!</p>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-8">Shop Jordan</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export default async function JordanPage() {
@@ -56,27 +84,14 @@ export default async function JordanPage() {
           </div>
         </div>
 
-        {/* Products Grid */}
-        {jordanProducts.length > 0 ? (
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">Shop Jordan</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {jordanProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+        {/* Products Grid with Suspense */}
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="text-gray-500 mb-4">
-              <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Jordan Collection Coming Soon</h3>
-            <p className="text-gray-600">The legendary Jordan collection will be available soon. Stay tuned for iconic drops!</p>
-          </div>
-        )}
+        }>
+          <ProductsGrid products={jordanProducts} />
+        </Suspense>
       </div>
     </div>
   )
