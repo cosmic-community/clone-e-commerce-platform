@@ -178,8 +178,8 @@ export default async function SearchResults({ query, category, type }: SearchRes
           <Link href="/women" className="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors">
             Shop Women
           </Link>
-          <Link href="/kids" className="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors">
-            Shop Kids
+          <Link href="/categories" className="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition-colors">
+            Browse Categories
           </Link>
         </div>
       </div>
