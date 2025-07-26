@@ -148,6 +148,28 @@ export interface Page extends CosmicObject {
   };
 }
 
+export interface About extends CosmicObject {
+  type: 'about-pages';
+  metadata: {
+    page_title: string;
+    hero_image?: {
+      url: string;
+      imgix_url: string;
+    };
+    introduction: string;
+    main_content: string;
+    mission_statement?: string;
+    values?: string;
+    team_image?: {
+      url: string;
+      imgix_url: string;
+    };
+    founded_year?: string;
+    location?: string;
+    meta_description?: string;
+  };
+}
+
 export interface CosmicResponse<T> {
   objects: T[];
   total: number;

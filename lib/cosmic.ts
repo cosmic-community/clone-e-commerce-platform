@@ -1,5 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
-import { Product, Category } from '@/types'
+import { Product, Category, About } from '@/types'
 import { DEFAULT_LOCALE, SupportedLocale } from '@/lib/locale'
 import { getLocaleFromHeaders } from '@/lib/cookies'
 
@@ -147,6 +147,24 @@ export async function getProductBySlug(slug: string, locale?: string): Promise<P
       .depth(1)
 
     return response.object as Product
+  } catch (error: any) {
+    if (error.status === 404) {
+      return null
+    }
+    throw error
+  }
+}
+
+export async function getAboutPage(): Promise<About | null> {
+  try {
+    const response = await cosmic.objects
+      .findOne({
+        type: 'about-pages'
+      })
+      .props(['id', 'title', 'slug', 'metadata'])
+      .depth(1)
+
+    return response.object as About
   } catch (error: any) {
     if (error.status === 404) {
       return null
